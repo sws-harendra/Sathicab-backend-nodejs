@@ -10,6 +10,10 @@ app.use(express.json());
 
 let port = process.env.PORT || 8888;
 
+app.get("/", (req, res) => {
+  res.send("Backend is running");
+});
+
 app.post("/user/booking-confirmation", async (req, res) => {
   try {
     const {
