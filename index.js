@@ -91,7 +91,7 @@ app.post("/user/booking-accept", async (req, res) => {
 
 app.post("/user/booking-complete", async (req, res) => {
   try {
-    const {
+    let {
       phoneNumber,
       // gst_amount,
       driver_phone_number,
@@ -105,6 +105,9 @@ app.post("/user/booking-complete", async (req, res) => {
       // cab_number,
       // pickup_date_time,
     } = req.body;
+    sub_total = Number(sub_total).toFixed(2);
+    amouunt_to_pay = Number(amount_to_pay).toFixed(2);
+    console.log(req.body);
     let gstamount = (sub_total * 5) / 100;
     await sendSMS("TripSummary", phoneNumber, [
       booking_id,
@@ -112,7 +115,7 @@ app.post("/user/booking-complete", async (req, res) => {
       extra_days,
     ]);
     await sendSMS("TripSummaryDetailed", phoneNumber, [
-      sub_total,
+      amount_to_pay,
       gstamount,
       amount_to_pay,
     ]);
