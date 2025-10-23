@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 app.post("/user/booking-confirmation", async (req, res) => {
   try {
-    const {
+    let {
       phoneNumber,
       name,
       payment_amount,
@@ -25,10 +25,12 @@ app.post("/user/booking-confirmation", async (req, res) => {
       booking_id,
       extra_km_charge,
     } = req.body;
+    // console.log(phoneNumber, name);
+
     remainingAmount = Number(req.body.remainingAmount).toFixed(2);
     distance = Number(req.body.distance).toFixed(2);
     extra_km_charge = Number(req.body.extra_km_charge).toFixed(2);
-
+    // console.log(distance, remainingAmount, extra_km_charge);
     await sendSMS("paymentConfirmation", phoneNumber, [
       name,
       payment_amount,
@@ -57,6 +59,7 @@ app.post("/user/booking-accept", async (req, res) => {
       cab,
       driver_name,
     } = req.body;
+
     await sendSMS("bookingConfirmation", phoneNumber, [
       name,
       booking_id,
@@ -150,6 +153,10 @@ app.post("/driver/registration", async (req, res) => {
       driver_name,
       process.env.SUPPORT_CONTACT,
     ]);
+    return res.status(200).json({
+      success: true,
+      message: "SMS sent successfully",
+    });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false });
@@ -157,12 +164,18 @@ app.post("/driver/registration", async (req, res) => {
 });
 
 app.post("/user/profile_completed", async (req, res) => {
+  console.log("here");
+
   try {
     const { phoneNumber, userName } = req.body;
     await sendSMS("userProfileCompleted", phoneNumber, [
       userName,
       process.env.SUPPORT_CONTACT,
     ]);
+    return res.status(200).json({
+      success: true,
+      message: "SMS sent successfully",
+    });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false });
