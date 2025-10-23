@@ -63,12 +63,12 @@ const templates = {
 
   driverRegistration: {
     templateId: "1207175369879985443",
-    senderId: "SATICB",
+    senderId: "SATCAB",
     text: "प्रिय {#var#}, बधाई हो! आपका साथी कैब ड्राइवर के रूप में रजिस्ट्रेशन सफलतापूर्वक पूरा हो गया है। अब आप हमारी एप्लिकेशन में लॉगिन करके राइड्स प्राप्त करना शुरू कर सकते हैं। अगर आपको किसी प्रकार की सहायता चाहिए, तो कृपया हमसे संपर्क करें: सहायता नंबर: {#var#} साथी कैब की टीम की ओर से आपको शुभकामनाएँ! धन्यवाद। – साथी कैब टीम",
   },
   userProfileCompleted: {
     templateId: "1207175394359796303",
-    senderId: "SATICB",
+    senderId: "SATCAB",
     text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. You can now easily book rides anytime, anywhere using our mobile app. Customer Support: {#var#} Thank you for choosing Sathi Cab. We wish you a pleasant journey! Team Sathi Cab Confrer",
   },
 };
