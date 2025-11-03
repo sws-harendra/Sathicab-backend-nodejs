@@ -71,6 +71,16 @@ const templates = {
     senderId: "SATCAB",
     text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. You can now easily book rides anytime, anywhere using our mobile app. Customer Support: {#var#} Thank you for choosing Sathi Cab. We wish you a pleasant journey! Team Sathi Cab Confrer",
   },
+  booking_cancel: {
+    templateId: "1207176024959544951",
+    senderId: "SATCAB",
+    text: "Your booking (ID: {#var#}) has been cancelled by {#var#}. Reason: {#var#}. We regret the inconvenience caused. Sathi Cab - Your trusted travel partner-https://sathicabs.com . Confrere Taxi",
+  },
+  booking_cancel2: {
+    templateId: "1207176024683591041",
+    senderId: "SATCAB",
+    text: "Refund Amount: {#var#}. Mode: {#var#}. Expected Time: {#var#}. Thank you for choosing Sathi Cab. For support, visit https://sathicabs.com . Confrere Taxi",
+  },
 };
 
 module.exports = { templates };

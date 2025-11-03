@@ -59,7 +59,7 @@ app.post("/user/booking-accept", async (req, res) => {
       cab,
       driver_name,
     } = req.body;
-
+    console.log("boooking_accepted", req.body);
     await sendSMS("bookingConfirmation", phoneNumber, [
       name,
       booking_id,
@@ -106,7 +106,7 @@ app.post("/user/booking-complete", async (req, res) => {
       // pickup_date_time,
     } = req.body;
     sub_total = Number(sub_total).toFixed(2);
-    amouunt_to_pay = Number(amount_to_pay).toFixed(2);
+    amount_to_pay = Number(amount_to_pay).toFixed(2);
     console.log(req.body);
     let gstamount = (sub_total * 5) / 100;
     await sendSMS("TripSummary", phoneNumber, [
@@ -174,6 +174,77 @@ app.post("/user/profile_completed", async (req, res) => {
     await sendSMS("userProfileCompleted", phoneNumber, [
       userName,
       process.env.SUPPORT_CONTACT,
+    ]);
+    return res.status(200).json({
+      success: true,
+      message: "SMS sent successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
+  }
+});
+
+app.post("/user/booking-cancel", async (req, res) => {
+  try {
+    let {
+      phoneNumber,
+      driverNumber,
+      userName,
+      booking_id,
+      cancel_by,
+      reason,
+      refund_amount,
+      mode,
+      expected_time,
+    } = req.body;
+    refund_amount = Number(refund_amount).toFixed(2);
+
+    console.log("booking_cancel", req.body);
+    await sendSMS("booking_cancel", driverNumber, [
+      booking_id,
+      cancel_by,
+      reason,
+    ]);
+    await sendSMS("booking_cancel2", phoneNumber, [
+      refund_amount,
+      mode,
+      expected_time,
+    ]);
+    return res.status(200).json({
+      success: true,
+      message: "SMS sent successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
+  }
+});
+
+app.post("/driver/booking-cancel", async (req, res) => {
+  try {
+    let {
+      phoneNumber,
+      // driverNumber,
+      booking_id,
+      cancel_by,
+      reason,
+      refund_amount,
+      mode,
+      expected_time,
+    } = req.body;
+    refund_amount = Number(refund_amount).toFixed(2);
+
+    console.log("booking_cancel", req.body);
+    await sendSMS("booking_cancel", phoneNumber, [
+      booking_id,
+      cancel_by,
+      reason,
+    ]);
+    await sendSMS("booking_cancel2", phoneNumber, [
+      refund_amount,
+      mode,
+      expected_time,
     ]);
     return res.status(200).json({
       success: true,
