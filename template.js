@@ -81,6 +81,14 @@ const templates = {
     senderId: "SATCAB",
     text: "Refund Amount: {#var#}. Mode: {#var#}. Expected Time: {#var#}. Thank you for choosing Sathi Cab. For support, visit https://sathicabs.com . Confrere Taxi",
   },
+
+  // custom template
+
+  auth_otp: {
+    templateId: "1207175791801839629",
+    senderId: "SATCAB",
+    text: "Sathi cab login code {#var#} Valid for 10 mins. Don't share it with anyone confrere Taxi",
+  },
 };
 
 module.exports = { templates };

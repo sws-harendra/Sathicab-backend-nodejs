@@ -3,6 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const { sendSMS } = require("./sendSms");
 const morgan = require("morgan");
+const admin = require("firebase-admin");
+const { generateOTP } = require("./helpers/generateOtp");
 
 const app = express();
 app.use(morgan("dev")); // Shows :method :url :status :response-time ms
@@ -14,6 +16,105 @@ app.get("/", (req, res) => {
   res.send("Backend is running");
 });
 
+/////////////////////////////////////////  otp auth
+// firebase
+admin.initializeApp({
+  credential: admin.credential.cert("./firebase.json"),
+});
+const db = admin.firestore();
+
+app.post("/auth/phone/send-otp", async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone)
+      return res
+        .status(400)
+        .json({ success: false, message: "Phone required" });
+
+    const otp = generateOTP();
+
+    // 🔸 Send OTP using your provider
+    await sendSMS("auth_otp", phone, [otp]);
+
+    // 🔸 Save OTP in Firestore (expires in 5 mins)
+    await db
+      .collection("otp_verifications")
+      .doc(phone)
+      .set({
+        otp,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes expiry
+      });
+
+    res.json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
+});
+app.post("/auth/verify-otp", async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing fields" });
+    }
+
+    const doc = await db.collection("otp_verifications").doc(phone).get();
+    if (!doc.exists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP expired or invalid" });
+    }
+
+    const data = doc.data();
+    if (data.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Incorrect OTP" });
+    }
+
+    if (Date.now() > data.expiresAt) {
+      return res.status(400).json({ success: false, message: "OTP expired" });
+    }
+
+    // 🔸 Delete OTP after use
+    await db.collection("otp_verifications").doc(phone).delete();
+
+    // 🔸 Try to find user by phone number
+    let userRecord;
+    try {
+      userRecord = await admin.auth().getUserByPhoneNumber(`+91${phone}`);
+    } catch (error) {
+      if (error.code === "auth/user-not-found") {
+        // If not found, create new Firebase user
+        userRecord = await admin.auth().createUser({
+          phoneNumber: `+91${phone}`,
+        });
+
+        // And create Firestore user doc
+        await db.collection("users").doc(userRecord.uid).set({
+          phone,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      } else {
+        throw error; // some other error
+      }
+    }
+
+    // 🔸 Generate Firebase custom token for the user
+    const token = await admin.auth().createCustomToken(userRecord.uid);
+
+    res.json({ success: true, token });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({
+      success: false,
+      message: error.errorInfo?.message || "Internal server error",
+    });
+  }
+});
+
+/////////////////////////////////////////////
 app.post("/user/booking-confirmation", async (req, res) => {
   try {
     let {
