@@ -1,6 +1,6 @@
 const { templates } = require("./template");
 const { fillTemplate } = require("./helpers/fillVariable");
-async function sendSMS(templateKey, number, variables = []) {
+async function sendSMS(templateKey, number, variables = [], unicode = false) {
   if (!templates[templateKey]) {
     throw new Error("Template not found!");
   }
@@ -10,7 +10,9 @@ async function sendSMS(templateKey, number, variables = []) {
   const encodedMessage = encodeURIComponent(message);
   // console.log("Encoded Message:", encodedMessage);
   const apiKey = process.env.OTP_KEY; // Replace with your API key
-  const url = `http://web.adcruxmedia.in/vb/apikey.php?apikey=${apiKey}&senderid=${senderId}&templateid=${templateId}&number=${number}&message=${encodedMessage}`;
+  const unicodeParam = unicode ? "&unicode=2" : "";
+
+  const url = `http://web.adcruxmedia.in/vb/apikey.php?apikey=${apiKey}&senderid=${senderId}&templateid=${templateId}${unicodeParam}&number=${number}&message=${encodedMessage}`;
   // console.log("Request URL:", url);
   try {
     const response = await fetch(url);

@@ -5,12 +5,32 @@ const { sendSMS } = require("./sendSms");
 const morgan = require("morgan");
 const admin = require("firebase-admin");
 const { generateOTP } = require("./helpers/generateOtp");
-
+const cors = require("cors");
 const app = express();
 app.use(morgan("dev")); // Shows :method :url :status :response-time ms
 app.use(express.json());
 
 let port = process.env.PORT || 8888;
+
+const allowedOrigins = ["http://localhost:61253", process.env.CLIENT_URL];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
@@ -253,10 +273,12 @@ app.post("/user/booking-complete", async (req, res) => {
 app.post("/driver/registration", async (req, res) => {
   try {
     const { phoneNumber, driver_name } = req.body;
-    await sendSMS("driverRegistration", phoneNumber, [
-      driver_name,
-      process.env.SUPPORT_CONTACT,
-    ]);
+    await sendSMS(
+      "driverRegistration",
+      phoneNumber,
+      [driver_name, process.env.SUPPORT_CONTACT],
+      true
+    );
     return res.status(200).json({
       success: true,
       message: "SMS sent successfully",
