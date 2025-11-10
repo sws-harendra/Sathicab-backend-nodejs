@@ -17,7 +17,7 @@ const templates = {
   bookingConfirmation: {
     templateId: "1207176012592338849",
     senderId: "SATCAB",
-    text: "Hi {#var#}, your booking (ID: {#var#}) has been confirmed. {#var#} will arrive for your pickup. Sathi Cab. Confrere Taxi",
+    text: "Hi {#var#}, your booking (ID: {#var#}) has been confirmed. {#var#} will arrive for your pickup. Please keep your phone available for contact. Sathi Cab . Confrere Taxi",
   },
   paymentConfirmation: {
     templateId: "1207176011734150698",

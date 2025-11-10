@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const admin = require("firebase-admin");
 const { generateOTP } = require("./helpers/generateOtp");
 const cors = require("cors");
+const { apiKeyAuth } = require("./helpers/apiKeyAuth");
 const app = express();
 app.use(morgan("dev")); // Shows :method :url :status :response-time ms
 app.use(express.json());
@@ -27,7 +28,7 @@ app.use(
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
   })
 );
@@ -43,7 +44,7 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
-app.post("/auth/phone/send-otp", async (req, res) => {
+app.post("/auth/phone/send-otp", apiKeyAuth, async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone)
@@ -72,7 +73,7 @@ app.post("/auth/phone/send-otp", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to send OTP" });
   }
 });
-app.post("/auth/verify-otp", async (req, res) => {
+app.post("/auth/verify-otp", apiKeyAuth, async (req, res) => {
   try {
     const { phone, otp } = req.body;
     if (!phone || !otp) {
@@ -135,7 +136,7 @@ app.post("/auth/verify-otp", async (req, res) => {
 });
 
 /////////////////////////////////////////////
-app.post("/user/booking-confirmation", async (req, res) => {
+app.post("/user/booking-confirmation", apiKeyAuth, async (req, res) => {
   try {
     let {
       phoneNumber,
@@ -151,11 +152,13 @@ app.post("/user/booking-confirmation", async (req, res) => {
     remainingAmount = Number(req.body.remainingAmount).toFixed(2);
     distance = Number(req.body.distance).toFixed(2);
     extra_km_charge = Number(req.body.extra_km_charge).toFixed(2);
+    const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
+
     // console.log(distance, remainingAmount, extra_km_charge);
     await sendSMS("paymentConfirmation", phoneNumber, [
       name,
       payment_amount,
-      booking_id,
+      formattedBookingId,
     ]);
     await sendSMS("RemainingPayInfoUser", phoneNumber, [
       remainingAmount, // Example remaining amount
@@ -168,7 +171,7 @@ app.post("/user/booking-confirmation", async (req, res) => {
     res.status(400).json({ success: false });
   }
 });
-app.post("/user/booking-accept", async (req, res) => {
+app.post("/user/booking-accept", apiKeyAuth, async (req, res) => {
   try {
     const {
       phoneNumber,
@@ -180,10 +183,13 @@ app.post("/user/booking-accept", async (req, res) => {
       cab,
       driver_name,
     } = req.body;
+
+    const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
+
     console.log("boooking_accepted", req.body);
     await sendSMS("bookingConfirmation", phoneNumber, [
       name,
-      booking_id,
+      formattedBookingId,
       driver_name, //driver name take
     ]);
     await sendSMS("cabDetails", phoneNumber, [
@@ -193,7 +199,7 @@ app.post("/user/booking-accept", async (req, res) => {
     ]);
 
     await sendSMS("bookingDriverAccepted", driver_phone_number, [
-      booking_id,
+      formattedBookingId,
       name,
       phoneNumber,
     ]);
@@ -210,7 +216,7 @@ app.post("/user/booking-accept", async (req, res) => {
   }
 });
 
-app.post("/user/booking-complete", async (req, res) => {
+app.post("/user/booking-complete", apiKeyAuth, async (req, res) => {
   try {
     let {
       phoneNumber,
@@ -226,12 +232,14 @@ app.post("/user/booking-complete", async (req, res) => {
       // cab_number,
       // pickup_date_time,
     } = req.body;
+    const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
+
     sub_total = Number(sub_total).toFixed(2);
     amount_to_pay = Number(amount_to_pay).toFixed(2);
     console.log(req.body);
     let gstamount = (sub_total * 5) / 100;
     await sendSMS("TripSummary", phoneNumber, [
-      booking_id,
+      formattedBookingId,
       extra_km,
       extra_days,
     ]);
@@ -242,7 +250,7 @@ app.post("/user/booking-complete", async (req, res) => {
     ]);
 
     await sendSMS("bookingDriverCompleted", driver_phone_number, [
-      booking_id,
+      formattedBookingId,
       user_name,
       phoneNumber,
     ]);
@@ -289,7 +297,7 @@ app.post("/driver/registration", async (req, res) => {
   }
 });
 
-app.post("/user/profile_completed", async (req, res) => {
+app.post("/user/profile_completed", apiKeyAuth, async (req, res) => {
   console.log("here");
 
   try {
@@ -308,7 +316,7 @@ app.post("/user/profile_completed", async (req, res) => {
   }
 });
 
-app.post("/user/booking-cancel", async (req, res) => {
+app.post("/user/booking-cancel", apiKeyAuth, async (req, res) => {
   try {
     let {
       phoneNumber,
@@ -322,10 +330,11 @@ app.post("/user/booking-cancel", async (req, res) => {
       expected_time,
     } = req.body;
     refund_amount = Number(refund_amount).toFixed(2);
+    const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
     console.log("booking_cancel", req.body);
     await sendSMS("booking_cancel", driverNumber, [
-      booking_id,
+      formattedBookingId,
       cancel_by,
       reason,
     ]);
@@ -344,7 +353,7 @@ app.post("/user/booking-cancel", async (req, res) => {
   }
 });
 
-app.post("/driver/booking-cancel", async (req, res) => {
+app.post("/driver/booking-cancel", apiKeyAuth, async (req, res) => {
   try {
     let {
       phoneNumber,
@@ -357,10 +366,11 @@ app.post("/driver/booking-cancel", async (req, res) => {
       expected_time,
     } = req.body;
     refund_amount = Number(refund_amount).toFixed(2);
+    const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
     console.log("booking_cancel", req.body);
     await sendSMS("booking_cancel", phoneNumber, [
-      booking_id,
+      formattedBookingId,
       cancel_by,
       reason,
     ]);
