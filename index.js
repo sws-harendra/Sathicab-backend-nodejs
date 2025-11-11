@@ -13,7 +13,7 @@ app.use(express.json());
 
 let port = process.env.PORT || 8888;
 
-const allowedOrigins = ["http://localhost:61253", process.env.CLIENT_URL];
+const allowedOrigins = ["http://localhost:60089", process.env.CLIENT_URL];
 
 app.use(
   cors({
@@ -51,6 +51,13 @@ app.post("/auth/phone/send-otp", apiKeyAuth, async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Phone required" });
+    if (phone === "1234567890") {
+      return res.json({
+        success: true,
+        message: "Test OTP sent successfully",
+        otp: "123456", // optional — can be hidden in production
+      });
+    }
 
     const otp = generateOTP();
 
@@ -80,6 +87,29 @@ app.post("/auth/verify-otp", apiKeyAuth, async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Missing fields" });
+    }
+    if (phone === "1234567890" && otp === "123456") {
+      let userRecord;
+      try {
+        userRecord = await admin.auth().getUserByPhoneNumber(`+911234567890`);
+      } catch (error) {
+        if (error.code === "auth/user-not-found") {
+          userRecord = await admin.auth().createUser({
+            phoneNumber: `+911234567890`,
+          });
+
+          await db.collection("users").doc(userRecord.uid).set({
+            phone: "1234567890",
+            // testAccount: true,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        } else {
+          throw error;
+        }
+      }
+
+      const token = await admin.auth().createCustomToken(userRecord.uid);
+      return res.json({ success: true, token });
     }
 
     const doc = await db.collection("otp_verifications").doc(phone).get();
