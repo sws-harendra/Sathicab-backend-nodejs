@@ -213,7 +213,7 @@ app.post("/user/booking-accept", apiKeyAuth, async (req, res) => {
       cab,
       driver_name,
     } = req.body;
-
+    // console.log(req.body);
     const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
     console.log("boooking_accepted", req.body);

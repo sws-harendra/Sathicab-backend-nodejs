@@ -12,7 +12,7 @@ async function sendSMS(templateKey, number, variables = [], unicode = false) {
   const apiKey = process.env.OTP_KEY; // Replace with your API key
   const unicodeParam = unicode ? "&unicode=2" : "";
 
-  const url = `http://web.adcruxmedia.in/vb/apikey.php?apikey=${apiKey}&senderid=${senderId}&templateid=${templateId}${unicodeParam}&number=${number}&message=${message}`;
+  const url = `http://web.adcruxmedia.in/vb/apikey.php?apikey=${apiKey}&senderid=${senderId}&templateid=${templateId}${unicodeParam}&number=${number}&message=${encodedMessage}`;
   // console.log("Request URL:", url);
   try {
     const response = await fetch(url);
