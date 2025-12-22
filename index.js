@@ -217,9 +217,12 @@ app.post("/user/booking-accept", apiKeyAuth, async (req, res) => {
       booking_id,
       cab,
       driver_name,
+      pickup_date_time_with_rate,
     } = req.body;
     // console.log(req.body);
     const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
+    const pickupTimeForCabDetails =
+      pickup_date_time_with_rate ?? pickup_date_time;
 
     console.log("boooking_accepted", req.body);
     await sendSMS("bookingConfirmation", phoneNumber, [
@@ -230,7 +233,7 @@ app.post("/user/booking-accept", apiKeyAuth, async (req, res) => {
     await sendSMS("cabDetails", phoneNumber, [
       driver_phone_number,
       cab_number,
-      pickup_date_time,
+      pickupTimeForCabDetails,
     ]);
 
     await sendSMS("bookingDriverAccepted", driver_phone_number, [
