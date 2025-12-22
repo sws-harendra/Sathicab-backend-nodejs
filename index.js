@@ -177,10 +177,15 @@ app.post("/user/booking-confirmation", apiKeyAuth, async (req, res) => {
       booking_id,
       extra_km_charge,
     } = req.body;
-    // console.log(phoneNumber, name);
+    console.log("herere");
 
     remainingAmount = Number(req.body.remainingAmount).toFixed(2);
-    distance = Number(req.body.distance).toFixed(2);
+    // distance may be number OR string
+    if (!isNaN(distance) && distance !== null && distance !== "") {
+      distance = Number(distance).toFixed(2);
+    } else {
+      distance = String(distance);
+    }
     extra_km_charge = Number(req.body.extra_km_charge).toFixed(2);
     const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
