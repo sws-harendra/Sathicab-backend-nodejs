@@ -371,7 +371,15 @@ app.post("/user/booking-cancel", apiKeyAuth, async (req, res) => {
     const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
     console.log("booking_cancel", req.body);
-    await sendSMS("booking_cancel", driverNumber, [
+    if (driverNumber) {
+      await sendSMS("booking_cancel", driverNumber, [
+        formattedBookingId,
+        cancel_by,
+        reason,
+      ]);
+    }
+
+    await sendSMS("booking_cancel", phoneNumber, [
       formattedBookingId,
       cancel_by,
       reason,
@@ -395,7 +403,7 @@ app.post("/driver/booking-cancel", apiKeyAuth, async (req, res) => {
   try {
     let {
       phoneNumber,
-      // driverNumber,
+      driverNumber,
       booking_id,
       cancel_by,
       reason,
@@ -406,7 +414,6 @@ app.post("/driver/booking-cancel", apiKeyAuth, async (req, res) => {
     refund_amount = Number(refund_amount).toFixed(2);
     const formattedBookingId = `SATHICAB${booking_id.toString().slice(-5)}`;
 
-    console.log("booking_cancel", req.body);
     await sendSMS("booking_cancel", phoneNumber, [
       formattedBookingId,
       cancel_by,
@@ -416,6 +423,11 @@ app.post("/driver/booking-cancel", apiKeyAuth, async (req, res) => {
       refund_amount,
       mode,
       expected_time,
+    ]);
+    await sendSMS("booking_cancel", driverNumber, [
+      formattedBookingId,
+      cancel_by,
+      reason,
     ]);
     return res.status(200).json({
       success: true,
