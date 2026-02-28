@@ -7,7 +7,7 @@ const templates = {
   registration: {
     templateId: "1707162222222",
     senderId: "SATICB",
-    text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. Customer Support: {#var#} Thank you for choosing Sathi Cab. Team Sathi Cab Confrer",
+    text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. Customer Support: {#var#} Thank you for choosing Sathi Cab. Team Sathi Cab Confrere",
   },
   cabDetails: {
     templateId: "1207176042979809184",
