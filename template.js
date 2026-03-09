@@ -69,7 +69,7 @@ const templates = {
   userProfileCompleted: {
     templateId: "1207175394359796303",
     senderId: "SATCB",
-    text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. You can now easily book rides anytime, anywhere using our mobile app. Customer Support: {#var#} Thank you for choosing Sathi Cab. We wish you a pleasant journey! Team Sathi Cab Confrer",
+    text: "Dear {#var#} Congratulations! Your registration on Sathi Cab has been successfully completed. You can now easily book rides anytime, anywhere using our mobile app. Customer Support: {#var#} Thank you for choosing Sathi Cab. We wish you a pleasant journey! Team Sathi Cab Confrere",
   },
   booking_cancel: {
     templateId: "1207176024959544951",
